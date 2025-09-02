@@ -1,0 +1,3 @@
+Format: <User>:<Message>
+
+INCOOLUSER: add a line and use the format above to message
