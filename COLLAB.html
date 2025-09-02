@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Collaboration Hub</title>
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --panel:#111827; /* gray-900 */
+      --surface:#1f2937; /* gray-800 */
+      --muted:#94a3b8; /* slate-400 */
+      --text:#e5e7eb; /* gray-200 */
+      --acc:#22c55e; /* green-500 */
+      --acc2:#60a5fa; /* blue-400 */
+      --warn:#f59e0b; /* amber-500 */
+      --danger:#ef4444; /* red-500 */
+      --link:#93c5fd; /* blue-300 */
+      --chip:#334155; /* slate-700 */
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(120deg, #0b1020, #0f172a);
+      color: var(--text);
+    }
+    header{
+      position: sticky; top:0; z-index:10;
+      background: rgba(15,23,42,0.9); backdrop-filter: blur(8px);
+      border-bottom: 1px solid #1f2937; 
+    }
+    .container{ max-width:1100px; margin:0 auto; padding: 14px 16px; }
+    h1{ margin:0; font-size:1.25rem; letter-spacing:.3px; }
+    .subtitle{ color: var(--muted); font-size:.9rem; }
+    main{ padding: 24px 16px 40px; }
+    .grid{ display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .card{
+      background: linear-gradient(180deg, rgba(31,41,55,.8), rgba(17,24,39,.9));
+      border:1px solid #273449; border-radius:14px; padding:14px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
+    }
+    .card h2{ margin: 6px 0 10px; font-size:1.05rem; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    a.btn{
+      display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:#061626;
+      background: linear-gradient(180deg, #7dd3fc, #38bdf8);
+      padding:10px 12px; border-radius:10px; font-weight:600; border:1px solid #60a5fa; box-shadow: 0 4px 16px rgba(56,189,248,.25);
+    }
+    a.btn.secondary{ background: linear-gradient(180deg, #86efac, #22c55e); border-color:#22c55e; }
+    a.btn.warn{ background: linear-gradient(180deg, #fde68a, #f59e0b); border-color:#f59e0b; }
+    a.btn.ghost{ background: none; border:1px solid #334155; color: var(--link); }
+    .panel{ background: var(--panel); border:1px solid #223047; border-radius:12px; padding:10px; }
+    .small{ font-size:.9rem; color: var(--muted); }
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{ background: var(--chip); color:#cbd5e1; padding: 6px 8px; border-radius:999px; font-size:.8rem; }
+    .list a{ display:block; padding:8px 10px; border-radius:10px; color: var(--link); text-decoration:none; }
+    .list a:hover{ background:#0b1222; }
+    footer{ text-align:center; padding:16px; color: var(--muted); font-size:.85rem; }
+    code{ background:#0b1222; padding:3px 6px; border-radius:6px; border:1px solid #1f2a44; }
+    .muted{ color: var(--muted); }
+    .hr{ height:1px; background: #1f2a44; margin:10px 0; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .kbd{ border:1px solid #2a3b59; background:#0b1222; padding: 2px 6px; border-radius:6px; font-size:.8rem; }
+  </style>
+</head>
+<body>
+  <!-- Replace REPO_OWNER and REPO_NAME once you know the GitHub path. -->
+  <script>
+    // Optional: Set defaults here to avoid manual edits everywhere.
+    const REPO_OWNER = "logan-code-del"; // e.g. "logan123"
+    const REPO_NAME  = "python_card_game";  // e.g. "python_card_game"
+    const BASE = `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
+    const ISSUES = `${BASE}/issues`;
+    const PULLS = `${BASE}/pulls`;
+    const ACTIONS = `${BASE}/actions`;
+    const PROJECTS = `${BASE}/projects`;
+    const DISCUSSIONS = `${BASE}/discussions`;
+
+    // Prefill helpers for creating issues with labels via URL.
+    function newIssueUrl({title, body, labels = []}){
+      const params = new URLSearchParams({ title, body });
+      if(labels.length){ params.set('labels', labels.join(',')); }
+      return `${ISSUES}/new?${params.toString()}`;
+    }
+
+    // Build URLs dynamically to avoid manual replacements.
+    function link(id, href){ const el = document.getElementById(id); if(el) el.href = href; }
+    document.addEventListener('DOMContentLoaded', () => {
+      link('issuesAll', ISSUES);
+      link('pullsAll', PULLS);
+      link('actionsAll', ACTIONS);
+      link('projectsAll', PROJECTS);
+      link('discussAll', DISCUSSIONS);
+
+      // Task quick views
+      link('tasksOpen', `${ISSUES}?q=is%3Aopen+is%3Aissue+label%3Atask`);
+      link('tasksInProg', `${ISSUES}?q=is%3Aopen+is%3Aissue+label%3Ain-progress`);
+      link('tasksBlocked', `${ISSUES}?q=is%3Aopen+is%3Aissue+label%3Ablocked`);
+      link('tasksReview', `${ISSUES}?q=is%3Aopen+is%3Aissue+label%3Areview`);
+
+      // Messaging views
+      link('messagesOpen', `${ISSUES}?q=is%3Aopen+label%3Amessage`);
+      link('messagesAll', `${ISSUES}?q=label%3Amessage`);
+
+      // Release notes (use GitHub releases)
+      link('releases', `${BASE}/releases`);
+      link('changelogIssues', `${ISSUES}?q=label%3Achangelog`);
+
+      // Compose links
+      document.getElementById('newTask').href = newIssueUrl({
+        title: 'Task: ',
+        body: `Describe the task, acceptance criteria, and context.\n\n- Assignee: @\n- Due: YYYY-MM-DD\n- Context: \n\nChecklist:\n- [ ] Implementation\n- [ ] Tests\n- [ ] Docs` ,
+        labels: ['task','triage']
+      });
+      document.getElementById('startProgress').href = newIssueUrl({
+        title: 'Task (in progress): ',
+        body: 'What are you working on? Link the issue/PR. ',
+        labels: ['task','in-progress']
+      });
+      document.getElementById('blocker').href = newIssueUrl({
+        title: 'Blocker: ',
+        body: 'Describe the blocker and what you need to proceed.',
+        labels: ['blocked']
+      });
+      document.getElementById('newMessage').href = newIssueUrl({
+        title: 'Message: ',
+        body: 'Thread purpose, context, and any links. Use comments to reply.',
+        labels: ['message']
+      });
+      document.getElementById('releaseNote').href = newIssueUrl({
+        title: 'Changelog: ',
+        body: 'Summarize changes, impacts, migrations. Link PRs. ',
+        labels: ['changelog']
+      });
+    });
+  </script>
+
+  <header>
+    <div class="container">
+      <h1>Collaboration Hub <span class="subtitle">for <span class="mono">REPO_OWNER/REPO_NAME</span></span></h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <!-- Quick Actions -->
+      <section class="card">
+        <h2>Quick Actions</h2>
+        <div class="row" style="margin-bottom:10px;">
+          <a id="newTask" class="btn" href="#">New Task</a>
+          <a id="startProgress" class="btn secondary" href="#">Start Progress</a>
+          <a id="blocker" class="btn warn" href="#">Report Blocker</a>
+          <a id="newMessage" class="btn" style="background: linear-gradient(180deg,#c7d2fe,#818cf8); border-color:#818cf8;" href="#">New Message Thread</a>
+          <a id="releaseNote" class="btn ghost" href="#">Add Changelog Note</a>
+        </div>
+        <div class="chips">
+          <span class="chip">Labels used: task, in-progress, blocked, review, message, changelog</span>
+          <span class="chip">Works entirely via GitHub (no local polling)</span>
+        </div>
+      </section>
+
+      <!-- Tasks / Board (via filtered GitHub issue views) -->
+      <section class="card">
+        <h2>Tasks</h2>
+        <div class="list">
+          <a id="tasksOpen" href="#">Open Tasks</a>
+          <a id="tasksInProg" href="#">In Progress</a>
+          <a id="tasksBlocked" href="#">Blocked</a>
+          <a id="tasksReview" href="#">Needs Review</a>
+        </div>
+        <div class="hr"></div>
+        <div class="small">Tip: Use issue labels to move tasks between lanes. Example workflow: add <code>in-progress</code> when you start, <code>review</code> when opening a PR, and remove labels as you progress.</div>
+      </section>
+
+      <!-- Messaging via Issues (lightweight threads) -->
+      <section class="card">
+        <h2>Messaging</h2>
+        <p class="small">Messaging happens via GitHub issues labeled <code>message</code>. Use comments to reply; subscribe for notifications. This keeps everything on GitHub servers (battery/storage friendly).</p>
+        <div class="list">
+          <a id="messagesOpen" href="#">Open Message Threads</a>
+          <a id="messagesAll" href="#">All Message Threads</a>
+        </div>
+      </section>
+
+      <!-- Releases / Changelog -->
+      <section class="card">
+        <h2>Releases & Changelog</h2>
+        <div class="row" style="margin-bottom:10px;">
+          <a id="releases" class="btn" href="#">Releases</a>
+          <a id="changelogIssues" class="btn ghost" href="#">Changelog Notes (Issues)</a>
+        </div>
+        <div class="panel">
+          <div class="small">Create release notes as issues with label <code>changelog</code>, then roll them up into a GitHub Release when ready.</div>
+        </div>
+      </section>
+
+      <!-- Repo Shortcuts -->
+      <section class="card">
+        <h2>Repo Shortcuts</h2>
+        <div class="list">
+          <a id="issuesAll" href="#">Issues</a>
+          <a id="pullsAll" href="#">Pull Requests</a>
+          <a id="projectsAll" href="#">Projects</a>
+          <a id="discussAll" href="#">Discussions</a>
+          <a id="actionsAll" href="#">Actions</a>
+        </div>
+      </section>
+
+      <!-- How to Use -->
+      <section class="card">
+        <h2>Setup & Conventions</h2>
+        <ol class="small">
+          <li>Replace <span class="mono">REPO_OWNER</span> and <span class="mono">REPO_NAME</span> in this file (top script) with your GitHub path.</li>
+          <li>In your repo, create labels: <span class="mono">task, in-progress, blocked, review, message, changelog</span>.</li>
+          <li>Optional: enable Discussions for richer threads.</li>
+          <li>Share this single file with collaborators or host it via GitHub Pages.</li>
+        </ol>
+        <div class="panel small">
+          Minimal automation idea (later): a GitHub Action that auto-adds labels based on issue title prefixes like <span class="mono">Task:</span> or <span class="mono">Changelog:</span>.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    Works entirely through GitHub links and issue labels. No local polling or resource usage.
+  </footer>
+</body>
+</html>
